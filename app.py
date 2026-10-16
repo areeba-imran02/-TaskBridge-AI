@@ -5,11 +5,17 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from core import cad_tool, excel_tool
-from core.llm import DEFAULT_MODEL, get_api_key, plan_task
+from core.llm import get_api_key, plan_task
+
+try:  # works even if core/llm.py is an older version
+    from core.llm import DEFAULT_MODEL
+except ImportError:
+    DEFAULT_MODEL = "gemini-3.8-flash"
 
 st.set_page_config(page_title="Prompt2Work", page_icon="⚙️", layout="wide")
-st.markdown(f"<style>{(Path(__file__).parent / 'assets' / 'style.css').read_text(encoding='utf-8')}</style>",
-            unsafe_allow_html=True)
+_css = Path(__file__).parent / "assets" / "style.css"
+if _css.exists():  # app still runs (unstyled) if the css file was not uploaded
+    st.markdown(f"<style>{_css.read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
 
 esc = html.escape
 WORKFLOW_NAMES = {"cad_bracket": "CAD bracket", "excel_analysis": "Spreadsheet analysis", "unsupported": "Not supported"}
